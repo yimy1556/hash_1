@@ -12,21 +12,26 @@ typedef struct hash_campo {
 } hash_campo_t;
 
 struct hash {
-    size_t cantidad; //cantidad de elementos ocupados            
+    size_t cantidad; //cantidad de elementos ocupados + desocupados          
     size_t largo; //tamaño de la tabla de hash                     
-    size_t carga;  //cantidad/largo                 
+    size_t carga;  //cantidad/largo (densidad del hash)         
     hash_campo_t *tabla; 
     hash_destruir_dato_t destruir_dato; 
 };
 
 
 size_t funcion_hash(const char* s,size_t tam){ 
-	size_t hashval; 
-	for (hashval = 0; *s != '\0'; s++){
-		hashval = *s + 31 * hashval;
+	size_t hash_val; 
+	for (hash_val = 0; *s != '\0'; s++){
+		hash_val = *s + 31 * hash_val;
 	}
-	return hashval %  tam;
+	return hash_val %  tam;
 }
+struct hash_iter{
+	hash_t* hash_i;
+	size_t contador;
+	size_t pos_iter;
+};
 
 
 hash_campo_t *inicializar_campo(hash_t* hash){
@@ -135,6 +140,53 @@ void hash_destruir(hash_t *hash){
     }
     free(hash);
 }
+
+
+
+hash_iter_t *hash_iter_crear(const hash_t *hash){
+	hash_iter_t* iter= malloc(sizeof(hash_iter_t));
+	if(!iter)
+		return NULL;
+	iter-> hash_i= hash;
+	size_t i=0;
+	iter-> contador=0;
+	if (hash_cantidad(hash)){
+		for (i ; hash->tabla[i]-> estado ; ++i);
+		iter-> contador++;
+	}
+	iter-> pos_iter=i;
+	return iter;
+}
+
+bool hash_iter_al_final(const hash_iter_t *iter){
+	if(!iter)
+		return false;
+	if(hash_cantidad(iter->hash_i)== iter->cantidad)
+		return true;
+	return false;
+}
+
+bool hash_iter_avanzar(hash_iter_t *iter){
+	if(hash_iter_al_final(iter) || !iter)
+		return false;
+	size_t i;
+	for (i = iter-> pos_iter+1 ; iter->hash_i-> tabla[i]-> estado ; ++i);
+
+	contador++;
+	iter->pos_iter= i;
+	return true;
+}
+
+const char *hash_iter_ver_actual(const hash_iter_t *iter){
+	if(!iter || !hash_cantidad(iter->hash_i) )
+		return NULL;
+	return iter->hash_i->tabla[iter-> pos_iter]-> clave;
+}
+
+void hash_iter_destruir(hash_iter_t* iter){
+	free(iter);
+}
+
 
 
 
