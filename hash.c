@@ -6,7 +6,7 @@
 #define BORRADO -1
 
 typedef struct hash_campo {
-    int *clave;
+    char *clave;
     void *valor;
     int estado;  // 1 libre => -1 => borrado 0 => ocupado
 } hash_campo_t;
@@ -18,6 +18,16 @@ struct hash {
     hash_campo_t *tabla; 
     hash_destruir_dato_t destruir_dato; 
 };
+
+
+size_t funcion_hash(const char* s,size_t tam){ 
+	size_t hashval; 
+	for (hashval = 0; *s != '\0'; s++){
+		hashval = *s + 31 * hashval;
+	}
+	return hashval %  tam;
+}
+
 
 hash_campo_t *inicializar_campo(hash_t* hash){
     hash_campo_t *tabla = malloc(TAM_INICIAL * sizeof(hash_campo_t));
@@ -51,18 +61,19 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
  */
  // 1 libre => -1 => borrado 0 => ocupado
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){
-    size_t posicion = ;
+    size_t posicion = funcion_hash(clave,strlen(clave));
     size_t i;
     for (i = posicion;(!hash->tabla[posicion].estado);i++){
-        if(!strcmp(hash->tabla[posicion]->clave,clave)){
+        if(strcmp(hash->tabla[posicion].clave, clave) != 0){
             if(hash->destruir_dato) hash->destruir_dato(hash->tabla[posicion].valor);
             hash->tabla[posicion].valor = dato;
             return true;
         }
         if(i == (hash->largo - 1)) i = 0;
     }
-    hash->tabla[i].clave = clave;
-    hash->tabla[i].dato = dato;
+
+    strcpy(hash->tabla[i].clave,clave);
+    hash->tabla[i].valor = dato;
     hash->cantidad++;
     return true;
 }
@@ -73,9 +84,9 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
  * en el caso de que estuviera guardado.
  */
 void *hash_borrar(hash_t *hash, const char *clave){
-    size_t posicion = funcion_hash(clave);
+    size_t posicion = funcion_hash(clave,hash->largo);
     size_t cont = posicion;
-    while(strcmp(hash->tabla[cont].clave) && posicion < hash->largo){
+    while(strcmp(hash->tabla[cont].clave,clave) && posicion < hash->largo){
         if(cont == hash->largo - 1) posicion = 0;
         if(cont == posicion - 1) return NULL;
         cont++;
@@ -84,7 +95,46 @@ void *hash_borrar(hash_t *hash, const char *clave){
     return hash->tabla[posicion].valor;
     }
 
+/* Obtiene el valor de un elemento del hash, si la clave no se encuentra
+ * devuelve NULL.
+ * Pre: La estructura hash fue inicializada
+ */
+void *hash_obtener(const hash_t *hash, const char *clave){
+    size_t posicion = funcion_hash(clave,strlen(clave));
+    while(strcmp(hash->tabla[posicion].clave,clave)){
+        if (posicion == hash->largo -1) posicion = 0;
+        if (posicion == (funcion_hash(clave,strlen(clave) - 1))) return NULL;
+    }
+    return hash->tabla[posicion].valor;
+}
+  
+ /* Determina si clave pertenece o no al hash.
+ * Pre: La estructura hash fue inicializada
+ */
+bool hash_pertenece(const hash_t *hash, const char *clave){
+    return (!hash_obtener(hash,clave))? true:false;
+}
 
+/* Devuelve la cantidad de elementos del hash.
+ * Pre: La estructura hash fue inicializada
+*/
+size_t hash_cantidad(const hash_t *hash){
+    return (hash->cantidad);
+}
+
+/* Destruye la estructura liberando la memoria pedida y llamando a la función
+ * destruir para cada par (clave, dato).
+ * hash_t *hash_crear(hash_destruir_dato_t destruir_dato); * Pre: La estructura hash fue inicializada
+ * Post: La estructura hash fue destruida
+ */
+void hash_destruir(hash_t *hash){
+    for (size_t i = 0; i < hash->largo ; i++){
+        if(hash->tabla[i].estado &&  hash->destruir_dato ){
+            hash->destruir_dato(hash->tabla[i].valor);
+        }
+    }
+    free(hash);
+}
 
 
 

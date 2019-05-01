@@ -3,7 +3,8 @@
 
 #include <stdbool.h>
 #include <stddef.h>
-
+#include <stdlib.h>
+#include <string.h>
 // Los structs deben llamarse "hash" y "hash_iter".
 struct hash;
 struct hash_iter;
@@ -51,7 +52,7 @@ size_t hash_cantidad(const hash_t *hash);
 
 /* Destruye la estructura liberando la memoria pedida y llamando a la función
  * destruir para cada par (clave, dato).
- * Pre: La estructura hash fue inicializada
+hash_t *hash_crear(hash_destruir_dato_t destruir_dato); * Pre: La estructura hash fue inicializada
  * Post: La estructura hash fue destruida
  */
 void hash_destruir(hash_t *hash);
