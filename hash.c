@@ -42,7 +42,6 @@ hash_campo_t *inicializar_campo(size_t largo){
         tabla[i].estado = LIBRE;        
         tabla[i].clave = NULL;
         tabla[i].valor = NULL;
-
     }   
     return tabla;
 }
@@ -168,17 +167,15 @@ void hash_destruir(hash_t *hash){
     free(hash);
 }
 
-
-
 hash_iter_t *hash_iter_crear(const hash_t *hash){
 	hash_iter_t* iter= malloc(sizeof(hash_iter_t));
 	if(!iter)
 		return NULL;
 	iter-> hash_i= hash;
-	size_t i=0;
+	size_t i=NULL;
 	iter-> contador=0;
 	if (hash_cantidad(hash)){
-		for (i ; hash->tabla[i]-> estado ; ++i);
+		for (i=0 ; hash->tabla[i]-> estado ; ++i);
 		iter-> contador++;
 	}
 	iter-> pos_iter=i;
