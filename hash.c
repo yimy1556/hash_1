@@ -178,21 +178,12 @@ hash_iter_t *hash_iter_crear(const hash_t *hash){
 	hash_iter_t* iter= malloc(sizeof(hash_iter_t));
 	if(!iter)
 		return NULL;
-<<<<<<< HEAD
 	iter-> hash_i= hash;
 	size_t i=NULL;
 	iter-> contador=0;
 	if (hash_cantidad(hash)){
 		for (i=0 ; hash->tabla[i]-> estado ; ++i);
 		iter-> contador++;
-=======
-	iter->hash_i = hash;
-	size_t i = 0;
-	iter-> contador=0;
-	if (hash_cantidad(hash)){
-		for (; hash->tabla[i].estado ; i++);
-		iter->contador++;
->>>>>>> 58bc6b25b96dfdc98941da5f7dca266d87c41bc6
 	}
 	iter-> pos_iter=i;
 	return iter;
