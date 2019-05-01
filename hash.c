@@ -1,24 +1,31 @@
 #include "hash.h"
 #include <string.h>
 #define TAM_INICIAL 101
-#define LIBRE 1
+#define VACIO 1
 #define OCUPADO 0
 #define BORRADO -1
+#define FACTOR_CARGA_MAX 0.60
+#define FACTOR_CARGA_MIN 0.10
+
 
 typedef struct hash_campo {
     char *clave;
     void *valor;
-    int estado;  // 1 libre => -1 => borrado 0 => ocupado
+    int estado;  // 1 VACIO => -1 => borrado 0 => ocupado
 } hash_campo_t;
 
 struct hash {
-    size_t cantidad; //cantidad de elementos ocupados + desocupados          
+    size_t cantidad; //cantidad de elementos ocupados          
     size_t largo; //tamaño de la tabla de hash                     
-    size_t carga;  //cantidad/largo (densidad del hash)         
+    float carga;  //cantidad/largo (densidad del hash)         
     hash_campo_t *tabla; 
     hash_destruir_dato_t destruir_dato; 
 };
-
+struct hash_iter{
+	hash_t* hash_i;
+	size_t contador;
+	size_t pos_iter;
+};
 
 size_t funcion_hash(const char* s,size_t tam){ 
 	size_t hash_val; 
@@ -27,27 +34,24 @@ size_t funcion_hash(const char* s,size_t tam){
 	}
 	return hash_val %  tam;
 }
-struct hash_iter{
-	hash_t* hash_i;
-	size_t contador;
-	size_t pos_iter;
-};
 
-
-hash_campo_t *inicializar_campo(hash_t* hash){
-    hash_campo_t *tabla = malloc(TAM_INICIAL * sizeof(hash_campo_t));
+hash_campo_t *inicializar_campo(size_t largo){
+    hash_campo_t *tabla = malloc(largo * sizeof(hash_campo_t));
     if(!tabla) return NULL;
-    for (size_t i = 0; i < hash->largo; i++){
-        tabla[i].estado = LIBRE;
-    }
-    return tabla;
+    for (size_t i = 0; i < largo; i++){
+        tabla[i].estado = LIBRE;        
+        tabla[i].clave = NULL;
+        tabla[i].valor = NULL;
 
+    }   
+    return tabla;
 }
+
 
 hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     hash_t* hash = malloc(sizeof(hash_t));
     if (!hash) return NULL;
-    hash->tabla = inicializar_campo(hash);
+    hash->tabla = inicializar_campos(TAM_INICIAL); 
     if(!hash->tabla){
         free(hash);
         return NULL;
@@ -57,6 +61,29 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     hash->largo = TAM_INICIAL;
     hash->carga = hash->cantidad / hash->largo;
     return hash;
+}
+bool hash_redimencionar(hash_t* hash,size_t nuevo_largo){
+    hash_campo_t* tabla= malloc(nuevo_largo* sizeof(hash_campo_t) );
+    if(!tabla)
+        return false;
+    tabla= inicializar_campos(nuevo_largo);
+
+    for (size_t i = 0; i < hash->largo; i++){
+        if(!hash->tabla[i].estado){
+            size_t pos=funcion_hash(hash->tabla[i].clave, nuevo_largo);
+            while(!tabla[pos].estado){
+                pos++;
+                if(pos==hash->largo)
+                    pos=0;
+            }
+            tabla[pos]=hash->tabla[i];
+        }
+    }
+    free(hash->tabla);
+    hash->tabla=tabla;
+    hash->largo=nuevo_largo;
+
+    return true;
 }
  
  /*Guarda un elemento en el hash, si la clave ya se encuentra en la
@@ -76,13 +103,13 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
         }
         if(i == (hash->largo - 1)) i = 0;
     }
-
     strcpy(hash->tabla[i].clave,clave);
     hash->tabla[i].valor = dato;
     hash->cantidad++;
+    hash->carga = hash->cantidad / hash->largo;
     return true;
 }
-/* Borra un elemento del hash y devuelve el dato asociado.  Devuelve
+/* Borra un elemento del hash y devuelve el dato asociado.  Devuelve    
  * NULL si el dato no estaba.
  * Pre: La estructura hash fue inicializada
  * Post: El elemento fue borrado de la estructura y se lo devolvió,
