@@ -127,10 +127,13 @@ void *hash_borrar(hash_t *hash, const char *clave){
     size_t posicion = funcion_hash(clave,hash->largo);
     size_t cont = posicion;
     while(strcmp(hash->tabla[cont].clave,clave) && posicion < hash->largo){
-        if(cont == hash->largo - 1) posicion = 0;
-        if(cont == posicion - 1) return NULL;
+        if(cont == hash->largo - 1)
+            posicion = 0;
+        if(cont == posicion - 1)
+            return NULL;
         cont++;
     }
+    hash->cantidad--;
     hash->tabla[cont].estado = BORRADO;
     if(hash->carga  <= FACTOR_CARGA_MIN )
         hash_redimencionar(hash ,hash->largo / MITAD);
@@ -144,11 +147,11 @@ void *hash_borrar(hash_t *hash, const char *clave){
 void *hash_obtener(const hash_t *hash, const char *clave){
     if(!hash_cantidad(hash))
         return NULL;
-    size_t posicion = funcion_hash(clave,strlen(clave));
+    size_t posicion = funcion_hash(clave,hash->largo);
     while(strcmp(hash->tabla[posicion].clave,clave)){
         if (posicion == hash->largo -1) 
             posicion = 0;
-        if (posicion == (funcion_hash(clave,strlen(clave) - 1))) 
+        if (posicion == (funcion_hash(clave,hash->largo )-1) )
             return NULL;
     }
     return hash->tabla[posicion].valor;
@@ -158,9 +161,7 @@ void *hash_obtener(const hash_t *hash, const char *clave){
  * Pre: La estructura hash fue inicializada
  */
 bool hash_pertenece(const hash_t *hash, const char *clave){
-    if(!hash_cantidad(hash))
-        return false;
-    return (!hash_obtener(hash,clave))? true:false;
+    return (!hash_cantidad(hash))? false:hash_obtener(hash,clave);
 }
 
 /* Devuelve la cantidad de elementos del hash.
