@@ -111,7 +111,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
         }       
         if(i == (hash->largo - 1)) i = 0;
     }
-    hash->tabla[i].estado= OCUPADO;
+
     hash->tabla[i].clave= clave;
     hash->tabla[i].valor = dato;
     hash->tabla[i].estado = OCUPADO;
@@ -137,7 +137,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
     size_t cont = posicion;
     while(strcmp(hash->tabla[cont].clave,clave) && posicion < hash->largo){
         if(cont == hash->largo - 1)
-            posicion = 0;
+            cont = 0;
         if(cont == posicion - 1 || !hash->tabla[cont].estado)
             return NULL;
         cont++;
@@ -146,7 +146,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
         return NULL;
     hash->cantidad--;
     hash->tabla[cont].estado = BORRADO;
-    return hash->tabla[posicion].valor;
+    return hash->tabla[cont].valor;
     }
 
 /* Obtiene el valor de un elemento del hash, si la clave no se encuentra
@@ -182,15 +182,12 @@ bool hash_pertenece(const hash_t *hash, const char *clave){
         return NULL;
      size_t posicion = funcion_hash(clave,hash->largo);
      while(hash->tabla[posicion].estado!=VACIO){
-
-        if(!strcmp(hash->tabla[posicion].clave,clave)&& hash->tabla[posicion].estado== OCUPADO ){
+        if(!strcmp(hash->tabla[posicion].clave,clave) && hash->tabla[posicion].estado== OCUPADO )
             return true;
-        }
         if (posicion == hash->largo -1) 
             posicion = 0;
         if (posicion == (funcion_hash(clave,hash->largo )-1) )
             return NULL;
-
         posicion++;
     }
 
@@ -226,8 +223,9 @@ hash_iter_t *hash_iter_crear(const hash_t *hash){
 	size_t i=0;
 	iter-> contador=0;
 	if (hash_cantidad(hash)){
-		for (i=0 ; hash->tabla[i].estado ; ++i);
-		iter-> contador++;
+		for (i=0 ; hash->tabla[i].estado ; ++i){
+		iter->contador++;
+        }
 	}
 	iter-> pos_iter=i;
 	return iter;
@@ -254,7 +252,7 @@ bool hash_iter_avanzar(hash_iter_t *iter){
 const char *hash_iter_ver_actual(const hash_iter_t *iter){
 	if(!iter || !hash_cantidad(iter->hash_i) )
 		return NULL;
-	return iter->hash_i->tabla[iter-> pos_iter].clave;
+	return iter->hash_i->tabla[iter->pos_iter].clave;
 }
 
 void hash_iter_destruir(hash_iter_t* iter){
