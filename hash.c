@@ -96,9 +96,9 @@ bool hash_redimencionar(hash_t* hash,size_t nuevo_largo){
  // 1 libre => -1 => borrado 0 => ocupado
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){
 
-    if(TAM_INICIAL<hash->largo){
-        if(hash->carga  >= FACTOR_CARGA_MAX )
-            hash_redimencionar(hash ,hash->largo *DUPLICAR);
+    if(FACTOR_CARGA_MAX< hash->carga){
+
+        hash_redimencionar(hash ,hash->largo *DUPLICAR);
     }
     size_t posicion = funcion_hash(clave,hash->largo);
     size_t i;
