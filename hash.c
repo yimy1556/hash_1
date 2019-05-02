@@ -102,25 +102,13 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     }
     size_t posicion = funcion_hash(clave,hash->largo);
     size_t i;
-<<<<<<< HEAD
     for (i = posicion; (hash->tabla[i].estado != VACIO) ;i++){
         if(!strcmp(hash->tabla[i].clave, clave)){
             if(hash->destruir_dato)
                 hash->destruir_dato(hash->tabla[i].valor);
             hash->tabla[i].valor = dato;
             return true;
-=======
-    for (i = posicion; (hash->tabla[posicion].estado)!=VACIO ;i++){
-        if((hash->tabla[posicion].estado)==OCUPADO){
-            if(!strcmp(hash->tabla[posicion].clave, clave)){
-                if(hash->destruir_dato) {
-                    hash->destruir_dato(hash->tabla[posicion].valor);
-                }
-                hash->tabla[posicion].valor = dato;
-                return true;
-            }
->>>>>>> 24c874bc8d55223106ce54f8d6f27551a979f147
-        }
+        }       
         if(i == (hash->largo - 1)) i = 0;
     }
     hash->tabla[i].estado= OCUPADO;
@@ -139,8 +127,6 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
  * en el caso de que estuviera guardado.
  */
 void *hash_borrar(hash_t *hash, const char *clave){
-    
-
     if(!hash_cantidad(hash))
         return NULL;
     if(TAM_INICIAL<hash->largo){
@@ -159,15 +145,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
     }
     hash->cantidad--;
     hash->tabla[cont].estado = BORRADO;
-<<<<<<< HEAD
-    void* valor = hash->tabla[posicion].valor;
-    if(hash->carga  <= FACTOR_CARGA_MIN )
-        hash_redimencionar(hash ,hash->largo / MITAD);
-    return valor;
-=======
-    
     return hash->tabla[posicion].valor;
->>>>>>> 24c874bc8d55223106ce54f8d6f27551a979f147
     }
 
 /* Obtiene el valor de un elemento del hash, si la clave no se encuentra
@@ -255,8 +233,7 @@ const char *hash_iter_ver_actual(const hash_iter_t *iter){
 }
 
 void hash_iter_destruir(hash_iter_t* iter){
-
-	free(iter);
+    free(iter);
 }
 
 
