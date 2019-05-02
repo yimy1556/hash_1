@@ -95,24 +95,31 @@ bool hash_redimencionar(hash_t* hash,size_t nuevo_largo){
  */
  // 1 libre => -1 => borrado 0 => ocupado
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){
+
+    if(TAM_INICIAL<hash->largo){
+        if(hash->carga  >= FACTOR_CARGA_MAX )
+            hash_redimencionar(hash ,hash->largo *DUPLICAR);
+    }
     size_t posicion = funcion_hash(clave,hash->largo);
     size_t i;
-    for (i = posicion; (!hash->tabla[posicion].estado) ;i++){
-        if(strcmp(hash->tabla[posicion].clave, clave) != 0){
-            if(hash->destruir_dato) {
-                hash->destruir_dato(hash->tabla[posicion].valor);
+    for (i = posicion; (hash->tabla[posicion].estado)!=VACIO ;i++){
+        if((hash->tabla[posicion].estado)==OCUPADO){
+            if(!strcmp(hash->tabla[posicion].clave, clave)){
+                if(hash->destruir_dato) {
+                    hash->destruir_dato(hash->tabla[posicion].valor);
+                }
+                hash->tabla[posicion].valor = dato;
+                return true;
             }
-            hash->tabla[posicion].valor = dato;
-            return true;
         }
         if(i == (hash->largo - 1)) i = 0;
     }
+    hash->tabla[i].estado= OCUPADO;
     hash->tabla[i].clave= clave;
     hash->tabla[i].valor = dato;
     hash->cantidad++;
     hash->carga = (float)hash->cantidad / (float)hash->largo;
-    if(hash->carga >= FACTOR_CARGA_MAX)
-        hash_redimencionar(hash ,DUPLICAR * hash->largo);
+    
     return true;
 }
 /* Borra un elemento del hash y devuelve el dato asociado.  Devuelve    
@@ -122,8 +129,15 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
  * en el caso de que estuviera guardado.
  */
 void *hash_borrar(hash_t *hash, const char *clave){
+    
+
     if(!hash_cantidad(hash))
         return NULL;
+    if(TAM_INICIAL<hash->largo){
+        if(hash->carga  <= FACTOR_CARGA_MIN )
+            hash_redimencionar(hash ,hash->largo * MITAD);
+    }
+
     size_t posicion = funcion_hash(clave,hash->largo);
     size_t cont = posicion;
     while(strcmp(hash->tabla[cont].clave,clave) && posicion < hash->largo){
@@ -135,8 +149,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
     }
     hash->cantidad--;
     hash->tabla[cont].estado = BORRADO;
-    if(hash->carga  <= FACTOR_CARGA_MIN )
-        hash_redimencionar(hash ,hash->largo / MITAD);
+    
     return hash->tabla[posicion].valor;
     }
 
