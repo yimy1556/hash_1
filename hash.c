@@ -133,7 +133,6 @@ void *hash_borrar(hash_t *hash, const char *clave){
         if(hash->carga  <= FACTOR_CARGA_MIN )
             hash_redimencionar(hash ,hash->largo * MITAD);
     }
-
     size_t posicion = funcion_hash(clave,hash->largo);
     size_t cont = posicion;
     while(strcmp(hash->tabla[cont].clave,clave) && posicion < hash->largo){
@@ -143,6 +142,8 @@ void *hash_borrar(hash_t *hash, const char *clave){
             return NULL;
         cont++;
     }
+    if(hash->tabla[cont].estado==BORRADO) 
+        return NULL;
     hash->cantidad--;
     hash->tabla[cont].estado = BORRADO;
     return hash->tabla[posicion].valor;
@@ -155,21 +156,45 @@ void *hash_borrar(hash_t *hash, const char *clave){
 void *hash_obtener(const hash_t *hash, const char *clave){
     if(!hash_cantidad(hash))
         return NULL;
+
     size_t posicion = funcion_hash(clave,hash->largo);
-    while(strcmp(hash->tabla[posicion].clave,clave)){
+     while(hash->tabla[posicion].estado!=VACIO){
+
+        if(!strcmp(hash->tabla[posicion].clave,clave)&& hash->tabla[posicion].estado== OCUPADO ){
+            return hash->tabla[posicion].valor;
+        }
         if (posicion == hash->largo -1) 
             posicion = 0;
         if (posicion == (funcion_hash(clave,hash->largo )-1) )
             return NULL;
+
+        posicion++;
     }
-    return hash->tabla[posicion].valor;
+
+    return NULL  ;
 }
   
  /* Determina si clave pertenece o no al hash.
  * Pre: La estructura hash fue inicializada
  */
 bool hash_pertenece(const hash_t *hash, const char *clave){
-    return (!hash_cantidad(hash))? false:hash_obtener(hash,clave);
+    if(!hash_cantidad(hash))
+        return NULL;
+     size_t posicion = funcion_hash(clave,hash->largo);
+     while(hash->tabla[posicion].estado!=VACIO){
+
+        if(!strcmp(hash->tabla[posicion].clave,clave)&& hash->tabla[posicion].estado== OCUPADO ){
+            return true;
+        }
+        if (posicion == hash->largo -1) 
+            posicion = 0;
+        if (posicion == (funcion_hash(clave,hash->largo )-1) )
+            return NULL;
+
+        posicion++;
+    }
+
+    return false;
 }
 
 /* Devuelve la cantidad de elementos del hash.
