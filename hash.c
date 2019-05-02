@@ -97,18 +97,18 @@ bool hash_redimencionar(hash_t* hash,size_t nuevo_largo){
 bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     size_t posicion = funcion_hash(clave,hash->largo);
     size_t i;
-    for (i = posicion; (!hash->tabla[posicion].estado) ;i++){
-        if(strcmp(hash->tabla[posicion].clave, clave) != 0){
-            if(hash->destruir_dato) {
-                hash->destruir_dato(hash->tabla[posicion].valor);
-            }
-            hash->tabla[posicion].valor = dato;
+    for (i = posicion; (hash->tabla[i].estado != VACIO) ;i++){
+        if(!strcmp(hash->tabla[i].clave, clave)){
+            if(hash->destruir_dato)
+                hash->destruir_dato(hash->tabla[i].valor);
+            hash->tabla[i].valor = dato;
             return true;
         }
         if(i == (hash->largo - 1)) i = 0;
     }
     hash->tabla[i].clave= clave;
     hash->tabla[i].valor = dato;
+    hash->tabla[i].estado = OCUPADO;
     hash->cantidad++;
     hash->carga = (float)hash->cantidad / (float)hash->largo;
     if(hash->carga >= FACTOR_CARGA_MAX)
@@ -116,7 +116,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
     return true;
 }
 /* Borra un elemento del hash y devuelve el dato asociado.  Devuelve    
- * NULL si el dato no estaba.
+ * NULL si el datio no estaba.
  * Pre: La estructura hash fue inicializada
  * Post: El elemento fue borrado de la estructura y se lo devolvió,
  * en el caso de que estuviera guardado.
@@ -129,15 +129,16 @@ void *hash_borrar(hash_t *hash, const char *clave){
     while(strcmp(hash->tabla[cont].clave,clave) && posicion < hash->largo){
         if(cont == hash->largo - 1)
             posicion = 0;
-        if(cont == posicion - 1)
+        if(cont == posicion - 1 || !hash->tabla[cont].estado)
             return NULL;
         cont++;
     }
     hash->cantidad--;
     hash->tabla[cont].estado = BORRADO;
+    void* valor = hash->tabla[posicion].valor;
     if(hash->carga  <= FACTOR_CARGA_MIN )
         hash_redimencionar(hash ,hash->largo / MITAD);
-    return hash->tabla[posicion].valor;
+    return valor;
     }
 
 /* Obtiene el valor de un elemento del hash, si la clave no se encuentra
@@ -168,8 +169,7 @@ bool hash_pertenece(const hash_t *hash, const char *clave){
  * Pre: La estructura hash fue inicializada
 */
 size_t hash_cantidad(const hash_t *hash){
-    
-    return (hash->cantidad);
+    return hash->cantidad;
 }
 
 /* Destruye la estructura liberando la memoria pedida y llamando a la función
@@ -179,10 +179,10 @@ size_t hash_cantidad(const hash_t *hash){
  */
 void hash_destruir(hash_t *hash){
     for (size_t i = 0; i < hash->largo ; i++){
-        if(hash->tabla[i].estado &&  hash->destruir_dato ){
+        if((hash->tabla[i].estado == OCUPADO) &&  hash->destruir_dato)
             hash->destruir_dato(hash->tabla[i].valor);
-        }
     }
+    free(hash->tabla);
     free(hash);
 }
 

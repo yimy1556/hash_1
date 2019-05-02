@@ -91,6 +91,7 @@ static void prueba_hash_reemplazar()
     print_test("Prueba hash insertar clave2", hash_guardar(hash, clave2, valor2a));
     print_test("Prueba hash obtener clave2 es valor2a", hash_obtener(hash, clave2) == valor2a);
     print_test("Prueba hash obtener clave2 es valor2a", hash_obtener(hash, clave2) == valor2a);
+    printf("%i\n",(int)hash_cantidad(hash));
     print_test("Prueba hash la cantidad de elementos es 2", hash_cantidad(hash) == 2);
 
     print_test("Prueba hash insertar clave1 con otro valor", hash_guardar(hash, clave1, valor1b));
@@ -99,6 +100,7 @@ static void prueba_hash_reemplazar()
     print_test("Prueba hash insertar clave2 con otro valor", hash_guardar(hash, clave2, valor2b));
     print_test("Prueba hash obtener clave2 es valor2b", hash_obtener(hash, clave2) == valor2b);
     print_test("Prueba hash obtener clave2 es valor2b", hash_obtener(hash, clave2) == valor2b);
+    printf("%i\n",(int)hash_cantidad(hash));
     print_test("Prueba hash la cantidad de elementos es 2", hash_cantidad(hash) == 2);
 
     hash_destruir(hash);
