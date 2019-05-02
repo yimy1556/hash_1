@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include "hash.h"
 #include <string.h>
 #define TAM_INICIAL 101
@@ -112,7 +114,7 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
         if(i == (hash->largo - 1)) i = 0;
     }
 
-    hash->tabla[i].clave= clave;
+    hash->tabla[i].clave= strdup(clave);
     hash->tabla[i].valor = dato;
     hash->tabla[i].estado = OCUPADO;
     hash->cantidad++;
@@ -243,7 +245,7 @@ bool hash_iter_avanzar(hash_iter_t *iter){
 	if(hash_iter_al_final(iter) || !iter)
 		return false;
 	size_t i;
-	for (i = iter->pos_iter + 1; iter->hash_i->tabla[i].estado ; i++);
+	for (i = iter->pos_iter + 1; iter->hash_i->tabla[i].estado  ; i++);
     iter->contador++;
 	iter->pos_iter = i;
 	return true;
