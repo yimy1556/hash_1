@@ -4,7 +4,6 @@
  * Copyright: (2011) Margarita Manterola, Maximiliano Curia
  * Licencia: CC-BY-SA 2.5 (ar) ó CC-BY-SA 3.0
  */
-
 #include "hash.h"
 #include "testing.h"
 
@@ -319,6 +318,7 @@ static void prueba_hash_iterar()
     indice = buscar(clave, claves, sizeof(claves) / sizeof(char *));
     print_test("Prueba hash iterador ver actual, es una clave valida", indice != -1);
     print_test("Prueba hash iterador ver actual, no es el mismo puntero", clave != claves[indice]);
+    printf(" hasta aca se llego linea 321 \n" );
     hash_iter_avanzar(iter);
     print_test("Prueba hash iterador esta al final, es true", hash_iter_al_final(iter));
 
