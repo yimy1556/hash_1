@@ -182,7 +182,7 @@ static void prueba_hash_clave_vacia()
     hash_t* hash = hash_crear(NULL);
 
     char *clave = "", *valor = "";
-
+    printf("_____prueba_hash_clave_vacia_____\n");
     print_test("Prueba hash insertar clave vacia", hash_guardar(hash, clave, valor));
     print_test("Prueba hash la cantidad de elementos es 1", hash_cantidad(hash) == 1);
     print_test("Prueba hash obtener clave vacia es valor", hash_obtener(hash, clave) == valor);
