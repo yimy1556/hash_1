@@ -32,7 +32,11 @@ struct hash_iter{
 
 int buscar (const hash_t* hash ,const char* clave){
     for (int i = 0;(size_t)i < hash->largo ;i++) {
-        if(hash->tabla[i].clave == OCUPADO){
+
+
+
+        if(hash->tabla[i].estado == OCUPADO){
+
             if (!strcmp(hash->tabla[i].clave,clave)) return i;
         }
         }   
@@ -75,10 +79,9 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     return hash;
 }
 bool hash_redimencionar(hash_t* hash,size_t nuevo_largo){
-    hash_campo_t* tabla= malloc(nuevo_largo* sizeof(hash_campo_t) );
+    hash_campo_t* tabla= tabla = inicializar_campo(nuevo_largo);
     if(!tabla)
         return false;
-    tabla = inicializar_campo(nuevo_largo);
 
     for (size_t i = 0; i < hash->largo; i++){
         if(!hash->tabla[i].estado){
@@ -138,15 +141,27 @@ void *hash_borrar(hash_t *hash, const char *clave){
         return NULL;
     if(hash->carga  <= FACTOR_CARGA_MIN )
         hash_redimencionar(hash ,hash->largo / MITAD);
-    void* dato = hash_obtener(hash,clave);
-    if (dato){
+
+
+
+
+    
+    bool pertenece = hash_pertenece(hash,clave);
+    if (pertenece){
+
         int posicion = buscar(hash,clave);
         hash->tabla[posicion].estado = BORRADO;
         free((hash->tabla[posicion].clave));
         hash->cantidad--;
-        return dato;
+
+
+
+
+
+        return hash->tabla[posicion].valor;
     }
-    return dato;
+    return NULL;
+
 }
 
  /* Obtiene el valor de un elemento del hash, si la clave no se encuentra
@@ -215,33 +230,33 @@ void hash_destruir(hash_t *hash){
 
 hash_iter_t *hash_iter_crear(const hash_t *hash){
 	hash_iter_t* iter= malloc(sizeof(hash_iter_t));
+
 	if(!iter)
 		return NULL;
+
 	iter-> hash_i= hash;
 	size_t i=0;
-	iter-> contador=0;
 	if (hash_cantidad(hash)){
-		for (i=0 ; hash->tabla[i].estado ; ++i){
-		iter->contador++;
-        }
-	}
-	iter-> pos_iter=i;
+		for (i=0 ; hash->tabla[i].estado ; ++i);
+    }else{
+        i= hash->largo;
+    }
+	iter-> pos_iter = i;
 	return iter;
 }
 
 bool hash_iter_al_final(const hash_iter_t *iter){
-	if(!iter)
-        return false;
-	if(hash_cantidad(iter->hash_i) == iter->contador) 
+	if(iter->pos_iter == iter->hash_i->largo) 
         return true;
 	return false;
 }
 
 bool hash_iter_avanzar(hash_iter_t *iter){
-	if(hash_iter_al_final(iter) || !iter)
+	if(hash_iter_al_final(iter) )
 		return false;
 	size_t i;
-	for (i = iter->pos_iter + 1; iter->hash_i->tabla[i].estado  ; i++);
+
+	for (i = iter->pos_iter + 1; iter->hash_i->tabla[i].estado && i < iter->hash_i->largo  ; i++);
     iter->contador++;
 	iter->pos_iter = i;
 	return true;
