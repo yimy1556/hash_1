@@ -32,18 +32,6 @@ struct hash_iter{
 	size_t pos_iter;
 };
 
-
-                // AUXILIARES 
-//modificar es O(N)
-int buscar (const hash_t* hash ,const char* clave){
-    for (int i = 0;(size_t)i < hash->largo ;i++) {
-        if(hash->tabla[i].estado == OCUPADO){
-            if (!strcmp(hash->tabla[i].clave,clave)) return i;
-        }
-     }   
-    return -1;
-}
-
 size_t funcion_hash(const char* s,size_t tam){ 
 	size_t hash_val; 
 	for (hash_val = 0; *s != '\0'; s++){
@@ -51,6 +39,26 @@ size_t funcion_hash(const char* s,size_t tam){
 	}
 	return hash_val %  tam;
 }
+
+                // AUXILIARES 
+//modificar es O(N)
+
+size_t buscar (const hash_t* hash ,const char* clave){  
+    size_t posicion = funcion_hash(clave, hash->largo);
+
+    while(posicion != posicion-1 && hash->tabla[posicion].estado != VACIO) {
+        if( !hash->tabla[posicion].estado ){
+            if (!strcmp(hash->tabla[posicion].clave,clave)) 
+                return posicion;
+        }
+        if(posicion== (hash->largo)-1 ){
+            posicion= 0;
+        }else
+            posicion++;
+    }   
+    return -1;
+}
+
 
 hash_campo_t *inicializar_campo(size_t largo){
     hash_campo_t* tabla = malloc(largo * sizeof(hash_campo_t));
@@ -148,7 +156,7 @@ void *hash_borrar(hash_t *hash, const char *clave){
     bool pertenece = hash_pertenece(hash,clave);
     if (pertenece){
 
-        int posicion = buscar(hash,clave);
+        size_t posicion = buscar(hash,clave);
         hash->tabla[posicion].estado = BORRADO;
         free((hash->tabla[posicion].clave));
         hash->cantidad--;
@@ -225,8 +233,7 @@ void hash_destruir(hash_t *hash){
 
 hash_iter_t *hash_iter_crear(const hash_t *hash){
 	hash_iter_t* iter= malloc(sizeof(hash_iter_t));        // O(N)
-
-	if(!iter)
+    if(!iter)
 		return NULL;                                          //O(1)
 
 	iter-> hash_i= hash;                                   //O(1)
@@ -261,7 +268,7 @@ bool hash_iter_avanzar(hash_iter_t *iter){
 	return true;
 }
 
-const char *hash_iter_ver_actual(const hash_iter_t *iter){
+const char *hash_iter_ver_actual(const hash_iter_t *iter){      //O(1)
 	if( hash_iter_al_final(iter) )                             //O(1)
 		return NULL;
 	return iter->hash_i->tabla[iter->pos_iter].clave;          //O(1)
