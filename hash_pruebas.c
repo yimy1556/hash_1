@@ -82,7 +82,7 @@ static void prueba_hash_reemplazar()
 
     char *clave1 = "perro", *valor1a = "guau", *valor1b = "warf";
     char *clave2 = "gato", *valor2a = "miau", *valor2b = "meaow";
-
+printf("___________________prueba_hash_reemplazar________________\n");
     /* Inserta 2 valores y luego los reemplaza */
     print_test("Prueba hash insertar clave1", hash_guardar(hash, clave1, valor1a));
     print_test("Prueba hash obtener clave1 es valor1a", hash_obtener(hash, clave1) == valor1a);
@@ -117,7 +117,7 @@ static void prueba_hash_reemplazar_con_destruir()
     valor1b = malloc(10 * sizeof(char));
     valor2a = malloc(10 * sizeof(char));
     valor2b = malloc(10 * sizeof(char));
-
+    printf("___________________prueba_hash_reemplazar_ con_destruir________________\n");
     /* Inserta 2 valores y luego los reemplaza (debe liberar lo que reemplaza) */
     print_test("Prueba hash insertar clave1", hash_guardar(hash, clave1, valor1a));
     print_test("Prueba hash obtener clave1 es valor1a", hash_obtener(hash, clave1) == valor1a);
@@ -146,7 +146,7 @@ static void prueba_hash_borrar()
     char *clave1 = "perro", *valor1 = "guau";
     char *clave2 = "gato", *valor2 = "miau";
     char *clave3 = "vaca", *valor3 = "mu";
-
+    printf("___________________prueba_hash_borrar________________\n");
     /* Inserta 3 valores y luego los borra */
     print_test("Prueba hash insertar clave1", hash_guardar(hash, clave1, valor1));
     print_test("Prueba hash insertar clave2", hash_guardar(hash, clave2, valor2));
@@ -182,7 +182,7 @@ static void prueba_hash_clave_vacia()
     hash_t* hash = hash_crear(NULL);
 
     char *clave = "", *valor = "";
-    printf("_____prueba_hash_clave_vacia_____\n");
+    printf("___________________prueba_hash_clave vacia_______________\n");
     print_test("Prueba hash insertar clave vacia", hash_guardar(hash, clave, valor));
     print_test("Prueba hash la cantidad de elementos es 1", hash_cantidad(hash) == 1);
     print_test("Prueba hash obtener clave vacia es valor", hash_obtener(hash, clave) == valor);
@@ -198,7 +198,7 @@ static void prueba_hash_valor_null()
     hash_t* hash = hash_crear(NULL);
 
     char *clave = "", *valor = NULL;
-
+    printf("___________________prueba_hash_valor_null________________\n");
     /* Inserta 1 valor y luego lo borra */
     print_test("Prueba hash insertar clave vacia valor NULL", hash_guardar(hash, clave, valor));
     print_test("Prueba hash la cantidad de elementos es 1", hash_cantidad(hash) == 1);
